@@ -54,7 +54,9 @@ function getColumns({ handleNumberInput, onAllocation }) {
       label: "Variance",
       key: "variancePercent",
       render: (row) => {
-        return `${(((getRowValue(row) - row.value) / row.value) * 100).toFixed(2)}%`;
+        return `${(((getRowValue(row) - row.value) / row.value) * 100).toFixed(
+          2
+        )}%`;
       },
     },
   ];
@@ -64,12 +66,13 @@ function updatedRowValue(rows, rowId, value) {
   let isChanged = false;
   let modifiedValue;
   const updatedRows = [...rows];
-  console.log(updatedRows, rowId, value);
+
   for (let i = 0; i < updatedRows.length; i++) {
     const row = rows[i];
+
     if (row.id === rowId) {
       isChanged = true;
-      modifiedValue = value - row.value;
+      modifiedValue = value - getRowValue(row);
       updatedRows[i] = {
         ...row,
         modifiedValue: value,
@@ -83,7 +86,9 @@ function updatedRowValue(rows, rowId, value) {
 
       if (childIsChanged) {
         isChanged = true;
+
         modifiedValue = getRowValue(row) + modifiedChildValue;
+
         updatedRows[i] = {
           ...row,
           children: [...updatedChildrenRows],
@@ -92,8 +97,12 @@ function updatedRowValue(rows, rowId, value) {
       }
     }
 
-    return { isChanged, updatedRows, modifiedValue };
+    if (isChanged) {
+      return { isChanged, updatedRows, modifiedValue };
+    }
   }
+
+  return { isChanged: false, updatedRows, modifiedValue };
 }
 
 function Table() {
